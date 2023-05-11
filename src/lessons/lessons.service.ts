@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { Lesson } from './entities/lesson.entity';
 
 @Injectable()
 export class LessonsService {
-  create(createLessonDto: CreateLessonDto) {
-    return 'This action adds a new lesson';
+  constructor(@InjectModel(Lesson) private lessonRepo: typeof Lesson) {}
+
+  async create(createLessonDto: CreateLessonDto) {
+    const candidate = await this.lessonRepo.findOne({
+      where: {
+        group_id: createLessonDto.group_id,
+        sequence_number: createLessonDto.sequence_number,
+      },
+    });
+    if (candidate) {
+      throw new BadRequestException('This lesson already exists');
+    }
+    const newLesson = await this.lessonRepo.create(createLessonDto);
+    return newLesson;
   }
 
-  findAll() {
-    return `This action returns all lessons`;
+  async findAll() {
+    const lessons = await this.lessonRepo.findAll();
+    return lessons;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} lesson`;
+  async findOne(id: number) {
+    const lesson = await this.lessonRepo.findOne({ where: { id } });
+    if (!lesson) {
+      throw new BadRequestException('Lesson not found');
+    }
+    return lesson;
   }
 
-  update(id: number, updateLessonDto: UpdateLessonDto) {
-    return `This action updates a #${id} lesson`;
+  async update(id: number, updateLessonDto: UpdateLessonDto) {
+    const lesson = await this.findOne(id);
+    if (updateLessonDto.sequence_number || updateLessonDto.group_id) {
+      const candidate = await this.lessonRepo.findOne({
+        where: {
+          group_id: updateLessonDto.group_id || lesson.group_id,
+          sequence_number:
+            updateLessonDto.sequence_number || lesson.sequence_number,
+        },
+      });
+      if (candidate && candidate.id !== id) {
+        throw new BadRequestException('This lesson already exists');
+      }
+    }
+
+    await lesson.update(updateLessonDto);
+    return lesson;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} lesson`;
+  async remove(id: number) {
+    const lesson = await this.findOne(id);
+    await lesson.destroy();
+    return { message: 'lesson deleted' };
   }
 }
