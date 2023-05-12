@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateStuffDto } from './dto/create-stuff.dto';
 import { UpdateStuffDto } from './dto/update-stuff.dto';
+import { Stuff } from './entities/stuff.entity';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class StuffsService {
-  create(createStuffDto: CreateStuffDto) {
-    return 'This action adds a new stuff';
+  constructor(@InjectModel(Stuff) private stuffRepo: typeof Stuff) {}
+
+  async create(createStuffDto: CreateStuffDto) {
+    const candidate = await this.stuffRepo.findOne({
+      where: {
+        username: createStuffDto.username,
+        phone_number: createStuffDto.phone_number,
+      },
+    });
+    if (candidate) {
+      throw new BadRequestException('This sutff already exists');
+    }
+    const newStuff = await this.stuffRepo.create(createStuffDto);
+    return newStuff;
   }
 
-  findAll() {
-    return `This action returns all stuffs`;
+  async findAll() {
+    const stuffs = await this.stuffRepo.findAll();
+    return stuffs;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} stuff`;
+  async findOne(id: number) {
+    const stuff = await this.stuffRepo.findOne({ where: { id } });
+    if (!stuff) {
+      throw new BadRequestException('Stuff not found');
+    }
+    return stuff;
   }
 
-  update(id: number, updateStuffDto: UpdateStuffDto) {
-    return `This action updates a #${id} stuff`;
+  async update(id: number, updateStuffDto: UpdateStuffDto) {
+    const stuff = await this.findOne(id);
+    if (updateStuffDto.username || updateStuffDto.phone_number) {
+      const candidate = await this.stuffRepo.findOne({
+        where: {
+          username: updateStuffDto.username || stuff.username,
+          phone_number: updateStuffDto.phone_number || stuff.phone_number,
+        },
+      });
+      if (candidate && candidate.id !== id) {
+        throw new BadRequestException('This sutff already exists');
+      }
+    }
+    await stuff.update(updateStuffDto);
+    return stuff;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} stuff`;
+  async remove(id: number) {
+    const stuff = await this.findOne(id);
+    await stuff.destroy();
+    return { message: 'stuff deleted' };
   }
 }

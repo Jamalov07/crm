@@ -32,6 +32,7 @@ import { StuffRole } from './stuff_roles/entities/stuff_role.entity';
 import { Stuff } from './stuffs/entities/stuff.entity';
 import { Subject } from './subjects/entities/subject.entity';
 import { GroupStudentModule } from './group_student/group_student.module';
+import { GroupStudent } from './group_student/entities/group_student.entity';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { GroupStudentModule } from './group_student/group_student.module';
         StuffRole,
         Stuff,
         Subject,
+        GroupStudent,
       ],
       autoLoadModels: true,
       logging: false,
