@@ -65,5 +65,6 @@ export class StuffsService {
       offset: (page - 1) * 10,
     });
     return groups;
+  }
   
 }
