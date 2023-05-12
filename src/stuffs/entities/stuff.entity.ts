@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Group } from '../../groups/entities/group.entity';
+import { StuffRole } from '../../stuff_roles/entities/stuff_role.entity';
 
 interface StuffAttrs {
   first_name: string;
@@ -46,4 +48,10 @@ export class Stuff extends Model<Stuff, StuffAttrs> {
   @ApiProperty({ example: 'link', description: 'stuff image link' })
   @Column({ type: DataType.STRING })
   image: string;
+
+  @HasMany(() => Group)
+  group: Group[];
+
+  @HasMany(() => StuffRole)
+  stuffRoles: StuffRole[];
 }

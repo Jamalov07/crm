@@ -1,5 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Lead } from '../../leads/entities/lead.entity';
+import { Status } from '../../status/entities/status.entity';
+import { Payment } from '../../payments/entities/payment.entity';
+import { StudentLesson } from '../../student_lessons/entities/student_lesson.entity';
+import { GroupStudent } from '../../group_student/entities/group_student.entity';
 
 interface StudentAttrs {
   first_name: string;
@@ -10,6 +23,7 @@ interface StudentAttrs {
   lead_id: number;
   group_id: number;
   image_link: string;
+  status_id: boolean;
 }
 
 @Table({ tableName: 'students', freezeTableName: true })
@@ -42,9 +56,27 @@ export class Student extends Model<Student, StudentAttrs> {
   @Column({ type: DataType.STRING })
   gender: string;
   @ApiProperty({ example: 2, description: 'lead id' })
+  @ForeignKey(() => Lead)
   @Column({ type: DataType.INTEGER })
   lead_id: number;
+  @BelongsTo(() => Lead)
+  lead: Lead;
   @ApiProperty({ example: 'link', description: 'student image link' })
   @Column({ type: DataType.STRING })
   image_link: string;
+  @ApiProperty({ example: 'active', description: 'student status' })
+  @ForeignKey(() => Status)
+  @Column({ type: DataType.BOOLEAN })
+  status_id: boolean;
+  @BelongsTo(() => Status)
+  status: Status;
+
+  @HasMany(() => Payment)
+  payments: Payment[];
+
+  @HasMany(() => StudentLesson)
+  studentLessons: StudentLesson[];
+
+  @HasMany(() => GroupStudent)
+  groups:GroupStudent[];
 }

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Lead } from '../../leads/entities/lead.entity';
+import { Student } from '../../students/entities/student.entity';
 
 interface StatusAttrs {
   name: string;
@@ -23,4 +25,10 @@ export class Status extends Model<Status, StatusAttrs> {
   @ApiProperty({ example: 'about Status', description: 'about Status' })
   @Column({ type: DataType.STRING })
   description: string;
+
+  @HasMany(() => Lead)
+  leads: Lead[];
+
+  @HasMany(() => Student)
+  students: Student[];
 }

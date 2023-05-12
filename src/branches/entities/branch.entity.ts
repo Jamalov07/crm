@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Group } from '../../groups/entities/group.entity';
 
 interface BranchAttrs {
   name: string;
@@ -37,4 +38,7 @@ export class Branch extends Model<Branch, BranchAttrs> {
   @ApiProperty({ example: false, description: 'branch status' })
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   is_main: boolean;
+
+  @HasMany(() => Group)
+  groups: Group[];
 }

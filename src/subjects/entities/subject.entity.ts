@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Group } from '../../groups/entities/group.entity';
 
 interface SubjectAttrs {
   name: string;
@@ -19,4 +20,7 @@ export class Subject extends Model<Subject, SubjectAttrs> {
   @ApiProperty({ example: 'english', description: 'subject name' })
   @Column({ type: DataType.STRING })
   name: string;
+
+  @HasMany(()=>Group)
+  groups:Group[]
 }

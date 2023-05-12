@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Group } from '../../groups/entities/group.entity';
+import { Student } from '../../students/entities/student.entity';
 
 interface PaymentAttrs {
   group_id: number;
@@ -21,11 +30,17 @@ export class Payment extends Model<Payment, PaymentAttrs> {
   id: number;
 
   @ApiProperty({ example: 1, description: 'group id' })
+  @ForeignKey(() => Group)
   @Column({ type: DataType.INTEGER })
   group_id: number;
+  @BelongsTo(() => Group)
+  group: Group;
   @ApiProperty({ example: 1, description: 'student id' })
+  @ForeignKey(()=>Student)
   @Column({ type: DataType.INTEGER })
   student_id: number;
+  @BelongsTo(() => Student)
+  student: Student;
   @ApiProperty({ example: '2023-02-02', description: 'payment date' })
   @Column({ type: DataType.DATE })
   payment_date: Date;
@@ -35,4 +50,5 @@ export class Payment extends Model<Payment, PaymentAttrs> {
   @ApiProperty({ example: 1, description: 'lesson count' })
   @Column({ type: DataType.INTEGER })
   lesson_count: number;
+
 }

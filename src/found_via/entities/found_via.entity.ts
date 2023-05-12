@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Lead } from '../../leads/entities/lead.entity';
 
 interface FoundViaAttrs {
   name: string;
@@ -18,4 +19,7 @@ export class FoundVia extends Model<FoundVia, FoundViaAttrs> {
   @ApiProperty({ example: 'facebook', description: 'social name' })
   @Column({ type: DataType.STRING })
   name: string;
+
+  @HasMany(() => Lead)
+  leads: Lead[];
 }
