@@ -49,4 +49,13 @@ export class SubjectsService {
     await subject.destroy();
     return { message: 'subject deleted' };
   }
+  
+  async paginate(page: number) {
+    const groups = await this.subjectRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

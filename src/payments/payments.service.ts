@@ -68,4 +68,13 @@ export class PaymentsService {
     await payment.destroy();
     return { message: 'payment deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.paymentRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

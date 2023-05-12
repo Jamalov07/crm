@@ -62,4 +62,13 @@ export class StudentsService {
     await student.destroy();
     return { message: 'student deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.studentRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

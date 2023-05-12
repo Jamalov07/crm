@@ -51,4 +51,13 @@ export class StagesService {
     await stage.destroy();
     return { message: 'stage deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.stageRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

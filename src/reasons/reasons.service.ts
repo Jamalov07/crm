@@ -49,4 +49,13 @@ export class ReasonsService {
     await reason.destroy();
     return { message: 'reason deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.reasonRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

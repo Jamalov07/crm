@@ -51,4 +51,13 @@ export class LeadsService {
     await lead.destroy();
     return { message: 'lead deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.leadRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
 }

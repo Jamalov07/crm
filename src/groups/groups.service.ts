@@ -3,6 +3,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Group } from './entities/group.entity';
+import { ReqWithStuff } from '../interfaces/ReqWithStuff';
 
 @Injectable()
 export class GroupsService {
@@ -89,5 +90,30 @@ export class GroupsService {
     const group = await this.findOne(id);
     await group.destroy();
     return { message: 'group deleted' };
+  }
+
+  async paginate(page: number) {
+    const groups = await this.groupRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  }
+
+  async paginateForTeacher(page: number, req: ReqWithStuff) {
+    const groups = await this.groupRepo.findAll({
+      where: {
+        stuff_id: req.stuff.id,
+      },
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    const groupsLength = await this.groupRepo.findAll({
+      where: {
+        stuff_id: req.stuff.id,
+      },
+    });
+    return { groups, totalLength: groupsLength.length };
   }
 }

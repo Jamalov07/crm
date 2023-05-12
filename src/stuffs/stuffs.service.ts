@@ -57,4 +57,13 @@ export class StuffsService {
     await stuff.destroy();
     return { message: 'stuff deleted' };
   }
+
+  async paginate(page: number) {
+    const groups = await this.stuffRepo.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+    return groups;
+  
 }
