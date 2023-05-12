@@ -44,9 +44,6 @@ export class Student extends Model<Student, StudentAttrs> {
   @ApiProperty({ example: 2, description: 'lead id' })
   @Column({ type: DataType.INTEGER })
   lead_id: number;
-  @ApiProperty({ example: 2, description: 'student group' })
-  @Column({ type: DataType.INTEGER })
-  group_id: number;
   @ApiProperty({ example: 'link', description: 'student image link' })
   @Column({ type: DataType.STRING })
   image_link: string;

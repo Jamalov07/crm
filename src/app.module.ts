@@ -31,6 +31,7 @@ import { Student } from './students/entities/student.entity';
 import { StuffRole } from './stuff_roles/entities/stuff_role.entity';
 import { Stuff } from './stuffs/entities/stuff.entity';
 import { Subject } from './subjects/entities/subject.entity';
+import { GroupStudentModule } from './group_student/group_student.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { Subject } from './subjects/entities/subject.entity';
     RolesModule,
     BranchesModule,
     SubjectsModule,
+    GroupStudentModule,
   ],
   controllers: [],
   providers: [],

@@ -1,26 +1,67 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateStudentLessonDto } from './dto/create-student_lesson.dto';
 import { UpdateStudentLessonDto } from './dto/update-student_lesson.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { StudentLesson } from './entities/student_lesson.entity';
 
 @Injectable()
 export class StudentLessonsService {
-  create(createStudentLessonDto: CreateStudentLessonDto) {
-    return 'This action adds a new studentLesson';
+  constructor(
+    @InjectModel(StudentLesson) private studentLessonRepo: typeof StudentLesson,
+  ) {}
+  async create(createStudentLessonDto: CreateStudentLessonDto) {
+    const candidate = await this.studentLessonRepo.findOne({
+      where: {
+        student_id: createStudentLessonDto.student_id,
+        lesson_id: createStudentLessonDto.lesson_id,
+      },
+    });
+    if (candidate) {
+      throw new BadRequestException('This attandance already exists');
+    }
+    const newStudentLesson = await this.studentLessonRepo.create(
+      createStudentLessonDto,
+    );
+    return newStudentLesson;
   }
 
-  findAll() {
-    return `This action returns all studentLessons`;
+  async findAll() {
+    const studentLessons = await this.studentLessonRepo.findAll();
+    return studentLessons;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} studentLesson`;
+  async findOne(id: number) {
+    const studentLesson = await this.studentLessonRepo.findOne({
+      where: { id },
+    });
+    if (!studentLesson) {
+      throw new BadRequestException('Student lesson not found');
+    }
+    return studentLesson;
   }
 
-  update(id: number, updateStudentLessonDto: UpdateStudentLessonDto) {
-    return `This action updates a #${id} studentLesson`;
+  async update(id: number, updateStudentLessonDto: UpdateStudentLessonDto) {
+    const studentLesson = await this.findOne(id);
+    if (updateStudentLessonDto.student_id || updateStudentLessonDto.lesson_id) {
+      const candidate = await this.studentLessonRepo.findOne({
+        where: {
+          student_id:
+            updateStudentLessonDto.student_id || studentLesson.student_id,
+          lesson_id:
+            updateStudentLessonDto.lesson_id || studentLesson.lesson_id,
+        },
+      });
+      if (candidate && candidate.id !== id) {
+        throw new BadRequestException('This attandance already exists');
+      }
+    }
+    await studentLesson.update(updateStudentLessonDto);
+    return studentLesson;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} studentLesson`;
+  async remove(id: number) {
+    const studentLesson = await this.findOne(id);
+    await studentLesson.destroy();
+    return { message: 'student lesson deleted' };
   }
 }
