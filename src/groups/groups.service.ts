@@ -4,7 +4,8 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Group } from './entities/group.entity';
 import { ReqWithStuff } from '../interfaces/ReqWithStuff';
-
+import { Op } from 'sequelize';
+import { SearchGroupDto } from './dto/search-group.dto';
 @Injectable()
 export class GroupsService {
   constructor(@InjectModel(Group) private groupRepo: typeof Group) {}
@@ -115,5 +116,114 @@ export class GroupsService {
       },
     });
     return { groups, totalLength: groupsLength.length };
+  }
+
+  async searchForAdmin(groupBody: SearchGroupDto) {
+    const {
+      teacher_name,
+      branch_name,
+      room_floor,
+      room_number,
+      stage_name,
+      group_name,
+      in_week_days,
+      start_time,
+      continuous,
+    } = groupBody;
+
+    const whereClause: any = {};
+
+    if (teacher_name) {
+      whereClause['$stuff.first_name$'] = {
+        [Op.iLike]: `%${teacher_name}%`,
+      };
+    }
+
+    if (branch_name) {
+      whereClause['$branch.name$'] = {
+        [Op.iLike]: `%${branch_name}%`,
+      };
+    }
+
+    if (room_floor) {
+      whereClause.room_floor = room_floor;
+    }
+    if (room_number) {
+      whereClause.room_number = room_number;
+    }
+
+    if (stage_name) {
+      whereClause['$stage.name$'] = {
+        [Op.iLike]: `%${stage_name}%`,
+      };
+    }
+
+    if (group_name) {
+      whereClause.group_name = {
+        [Op.iLike]: `%${group_name}%`,
+      };
+    }
+
+    if (start_time) {
+      whereClause.start_time = {
+        [Op.iLike]: `%${start_time}%`,
+      };
+    }
+    if (in_week_days) {
+      whereClause.in_week_days = {
+        [Op.iLike]: `%${in_week_days}%`,
+      };
+    }
+
+    if (continuous) {
+      whereClause.continuous = {
+        [Op.iLike]: `%${continuous}%`,
+      };
+    }
+    const groups = await this.groupRepo.findAll({
+      include: { all: true },
+      where: whereClause,
+    });
+    return groups;
+  }
+
+  async searchForTeacher(groupBody: SearchGroupDto, req: ReqWithStuff) {
+    const { room_number, stage_name, group_name, in_week_days, start_time } =
+      groupBody;
+
+    const whereClause: any = {};
+
+    if (room_number) {
+      whereClause.room_number = room_number;
+    }
+
+    if (stage_name) {
+      whereClause['$stage.name$'] = {
+        [Op.iLike]: `%${stage_name}%`,
+      };
+    }
+
+    if (group_name) {
+      whereClause.group_name = {
+        [Op.iLike]: `%${group_name}%`,
+      };
+    }
+
+    if (start_time) {
+      whereClause.start_time = {
+        [Op.iLike]: `%${start_time}%`,
+      };
+    }
+    if (in_week_days) {
+      whereClause.in_week_days = {
+        [Op.iLike]: `%${in_week_days}%`,
+      };
+    }
+
+    const groups = await this.groupRepo.findAll({
+      include: { all: true },
+      where: { ...whereClause, stuff_id: req.stuff.id },
+    });
+    return groups;
   }
 }

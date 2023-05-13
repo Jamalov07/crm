@@ -50,7 +50,7 @@ export class Stuff extends Model<Stuff, StuffAttrs> {
   image: string;
 
   @HasMany(() => Group)
-  group: Group[];
+  groups: Group[];
 
   @HasMany(() => StuffRole)
   stuffRoles: StuffRole[];

@@ -4,6 +4,7 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Student } from './entities/student.entity';
 import { Op } from 'sequelize';
+import { SearchStudentDto } from './dto/search-student.dto';
 @Injectable()
 export class StudentsService {
   constructor(@InjectModel(Student) private studentRepo: typeof Student) {}
@@ -70,5 +71,54 @@ export class StudentsService {
       offset: (page - 1) * 10,
     });
     return groups;
+  }
+
+  async searchForAdmin(studentBody: SearchStudentDto) {
+    const {
+      birthday,
+      first_name,
+      last_name,
+      gender,
+      phone_number,
+    } = studentBody;
+
+    const whereClause: any = {};
+
+    if (birthday) {
+      whereClause.birthday = {
+        [Op.iLike]: `%${birthday}%`,
+      };
+    }
+
+    if (first_name) {
+      whereClause.first_name = {
+        [Op.iLike]: `%${first_name}%`,
+      };
+    }
+
+    if (last_name) {
+      whereClause.last_name = {
+        [Op.iLike]: `%${last_name}%`,
+      };
+    }
+
+    if (gender) {
+      whereClause.gender = {
+        [Op.iLike]: `%${gender}%`,
+      };
+    }
+
+    if (phone_number) {
+      whereClause.phone_number = {
+        [Op.iLike]: `%${phone_number}%`,
+      };
+    }
+
+    const students = await this.studentRepo.findAll({
+      include: { all: true },
+      where: whereClause,
+    });
+
+    return students;
   }
 }
