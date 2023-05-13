@@ -66,8 +66,8 @@ export class Student extends Model<Student, StudentAttrs> {
   image_link: string;
   @ApiProperty({ example: 'active', description: 'student status' })
   @ForeignKey(() => Status)
-  @Column({ type: DataType.BOOLEAN })
-  status_id: boolean;
+  @Column({ type: DataType.INTEGER })
+  status_id: number;
   @BelongsTo(() => Status)
   status: Status;
 
