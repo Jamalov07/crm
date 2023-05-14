@@ -70,7 +70,7 @@ export class StuffsService {
     return groups;
   }
 
-  async searchTeachers(teacherBody:SearchStuffDto) {
+  async searchTeachers(teacherBody: SearchStuffDto) {
     const {
       full_name,
       groups_count,
@@ -127,7 +127,7 @@ export class StuffsService {
         for (let a = 0; a < checkingArray[i].groups.length; a++) {
           studentcount += checkingArray[i].groups[a].students.length;
         }
-        if (studentcount == students_count) {
+        if (studentcount == Number(students_count)) {
           check3.push(checkingArray[i]);
         }
       }
@@ -159,7 +159,7 @@ export class StuffsService {
             }
           }
         }
-        if (incoming_leads_count == incomingleads) {
+        if (Number(incoming_leads_count) == incomingleads) {
           check4.push(checkingArray[i]);
         }
       }
@@ -191,7 +191,7 @@ export class StuffsService {
             }
           }
         }
-        if (outgoing_leads_count == outgoingleads) {
+        if (Number(outgoing_leads_count) == outgoingleads) {
           check5.push(checkingArray[i]);
         }
       }
