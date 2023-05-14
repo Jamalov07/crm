@@ -3,10 +3,11 @@ import { StuffsService } from './stuffs.service';
 import { StuffsController } from './stuffs.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Stuff } from './entities/stuff.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports:[SequelizeModule.forFeature([Stuff])],
+  imports: [JwtModule.register({}), SequelizeModule.forFeature([Stuff])],
   controllers: [StuffsController],
-  providers: [StuffsService]
+  providers: [StuffsService],
 })
 export class StuffsModule {}

@@ -4,6 +4,7 @@ import { UpdateStuffDto } from './dto/update-stuff.dto';
 import { Stuff } from './entities/stuff.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class StuffsService {
@@ -96,6 +97,7 @@ export class StuffsService {
       where: { ...whereClause },
       include: { all: true },
     });
+
     let check1: any = [];
     for (let i = 0; i < teachers.length; i++) {
       let sort = [];
@@ -118,7 +120,7 @@ export class StuffsService {
 
     let check3: any = [];
     if (students_count) {
-      let checkingArray = check2 || check1;
+      let checkingArray = groups_count ? check2 : check1;
       for (let i = 0; i < checkingArray.length; i++) {
         let studentcount = 0;
         for (let a = 0; a < checkingArray[i].groups.length; a++) {
@@ -130,6 +132,105 @@ export class StuffsService {
       }
     }
 
-    return check3 || check2 || check1;
+    let check4: any = [];
+    if (incoming_leads_count) {
+      let checkingArray = students_count
+        ? check3
+        : groups_count
+        ? check2
+        : check1;
+
+      for (let i = 0; i < checkingArray.length; i++) {
+        let incomingleads = 0;
+        for (let a = 0; a < checkingArray[i].groups.length; a++) {
+          for (let b = 0; b < checkingArray[i].groups[a].lessons.length; b++) {
+            for (
+              let c = 0;
+              c < checkingArray[i].groups[a].lessons[b].leads.length;
+              c++
+            ) {
+              if (
+                checkingArray[i].groups[a].lessons[b].leads[c].status.name ===
+                "Student bo'lgan"
+              ) {
+                incomingleads++;
+              }
+            }
+          }
+        }
+        if (incoming_leads_count == incomingleads) {
+          check4.push(checkingArray[i]);
+        }
+      }
+    }
+
+    let check5: any = [];
+    if (outgoing_leads_count) {
+      let checkingArray = students_count
+        ? check3
+        : groups_count
+        ? check2
+        : check1;
+
+      for (let i = 0; i < checkingArray.length; i++) {
+        let outgoingleads = 0;
+        for (let a = 0; a < checkingArray[i].groups.length; a++) {
+          for (let b = 0; b < checkingArray[i].groups[a].lessons.length; b++) {
+            for (
+              let c = 0;
+              c < checkingArray[i].groups[a].lessons[b].leads.length;
+              c++
+            ) {
+              if (
+                checkingArray[i].groups[a].lessons[b].leads[c].status.name ===
+                'Inkor qilgan'
+              ) {
+                outgoingleads++;
+              }
+            }
+          }
+        }
+        if (outgoing_leads_count == outgoingleads) {
+          check5.push(checkingArray[i]);
+        }
+      }
+    }
+
+    return outgoing_leads_count
+      ? check5
+      : incoming_leads_count
+      ? check4
+      : students_count
+      ? check3
+      : groups_count
+      ? check2
+      : check1;
+  }
+
+  async check_token(token: string) {
+    try {
+      const data = new JwtService().verify(token, {
+        secret: process.env.ACCESS_TOKEN_KEY,
+      });
+
+      if (data) {
+        if (data.id && data.role_id) {
+          const stuff = await this.stuffRepo.findOne({
+            where: { id: data.id },
+            include: { all: true },
+          });
+          if (stuff) {
+            return {
+              isValid: true,
+              tokenData: data,
+              stuff: stuff,
+            };
+          }
+        }
+      }
+      return { isValid: false };
+    } catch (error) {
+      return { isValid: false, message: error };
+    }
   }
 }
