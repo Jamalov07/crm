@@ -5,6 +5,7 @@ import { Stuff } from './entities/stuff.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { JwtService } from '@nestjs/jwt';
+import { SearchStuffDto } from './dto/search-stuff.dto';
 
 @Injectable()
 export class StuffsService {
@@ -69,7 +70,7 @@ export class StuffsService {
     return groups;
   }
 
-  async searchTeachers(teacherBody) {
+  async searchTeachers(teacherBody:SearchStuffDto) {
     const {
       full_name,
       groups_count,
