@@ -130,4 +130,40 @@ export class LeadsService {
 
     return leads;
   }
+
+  async statsForTeacher() {
+    const leads = await this.leadRepo.findAll();
+    const students = await this.leadRepo.findAll({
+      where: {
+        ['$status.name$']: "Student bo'lgan",
+      },
+      include: { all: true },
+    });
+    const outgoing_leads = await this.leadRepo.findAll({
+      where: {
+        ['$status.name$']: 'Inkor qilgan',
+      },
+      include: { all: true },
+    });
+
+    const total_leads = {
+      count: leads.length,
+      percent: 100,
+    };
+    const total_students = {
+      count: students.length,
+      percent: Math.round(students.length / Math.round(leads.length / 100)),
+    };
+    const total_outgoing_leads = {
+      count: outgoing_leads.length,
+      percent: Math.round(
+        outgoing_leads.length / Math.round(leads.length / 100),
+      ),
+    };
+    return {
+      leads: total_leads,
+      students: total_students,
+      outgoing_leads: total_outgoing_leads,
+    };
+  }
 }
